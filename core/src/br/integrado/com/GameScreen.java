@@ -64,6 +64,7 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
         Gdx.gl.glClearColor(.15f,.15f,.25f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        lbPontuacao.setPosition(10,camera.viewportHeight-20);
         palco.act(delta);
         palco.draw();
     }
