@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -45,6 +46,8 @@ public class GameScreen extends BaseScreen {
     private Texture meteor_2;
     private Array<Image> meteoros_1 = new Array<Image>();
     private Array<Image> meteoros_2 = new Array<Image>();
+    private Array<Texture> texturaExplosao = new Array<Texture>();
+    private Array<Explosao> explosoes = new Array<Explosao>();
 
 
     /**
@@ -73,6 +76,11 @@ public class GameScreen extends BaseScreen {
         texturaShot = new Texture("sprites/shot.png");
         meteor_1 = new Texture("sprites/enemie-1.png");
         meteor_2 = new Texture("sprites/enemie-2.png");
+
+        for (int i = 1;i<=17;i++){
+            Texture text = new Texture("sprites/explosion-" + i + ".png");
+            texturaExplosao.add(text);
+        }
     }
 
     /**
@@ -107,7 +115,12 @@ public class GameScreen extends BaseScreen {
      * Instancia a fonte
      */
     private void initFonte() {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/roboto.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        param.color = Color.WHITE;
+
         fonte = new BitmapFont();
+        generator.dispose();
     }
 
     /**
@@ -146,9 +159,10 @@ public class GameScreen extends BaseScreen {
                 if (meteoro.overlaps(tiror)){
                     pontuacao +=5;
                     tiro.remove();
-                    shotings.removeValue(tiro,true);
+                    shotings.removeValue(tiro, true);
                     m.remove();
-                    meteoros_1.removeValue(m,true);
+                    meteoros_1.removeValue(m, true);
+                    criarExplosao(meteoro.getX(), meteoro.getY());
                 }
             }
         }
@@ -172,6 +186,25 @@ public class GameScreen extends BaseScreen {
             gameover = true;
         }
 
+    }
+
+    private void criarExplosao(float x, float y) {
+    Image ator = new Image(texturaExplosao.get(0));
+        ator.setPosition(x, y);
+        palco.addActor(ator);
+
+        Explosao explosao = new Explosao(ator, texturaExplosao);
+
+        explosoes.add(explosao);
+    }
+
+    private void atualizarExplosao(float delta){
+        for (Explosao ex: explosoes){
+            if (ex.getEstagio() >= 16){
+                explosoes.removeValue(ex,true);
+                ex.getAtor();
+            }
+        }
     }
 
     private final float MAX_INTERVALO_TIROS = 0.2f;
@@ -355,5 +388,8 @@ public class GameScreen extends BaseScreen {
         texturaShot.dispose();
         meteor_1.dispose();
         meteor_2.dispose();
+        for(Texture t : texturaExplosao){
+            t.dispose();
+        }
     }
 }
