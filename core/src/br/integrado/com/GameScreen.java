@@ -2,6 +2,8 @@ package br.integrado.com;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -48,6 +50,10 @@ public class GameScreen extends BaseScreen {
     private Array<Image> meteoros_2 = new Array<Image>();
     private Array<Texture> texturaExplosao = new Array<Texture>();
     private Array<Explosao> explosoes = new Array<Explosao>();
+    private Sound somTiro;
+    private Sound somExplosao;
+    private Sound somGameOver;
+    private Music somFundo;
 
 
     /**
@@ -70,6 +76,16 @@ public class GameScreen extends BaseScreen {
         initFonte();
         initInformacoes();
         initPlayer();
+        initSom();
+    }
+
+    private void initSom() {
+        somTiro = Gdx.audio.newSound(Gdx.files.internal("sounds/shoot.mp3"));
+        somExplosao = Gdx.audio.newSound(Gdx.files.internal("sounds/explosion.mp3"));
+        somGameOver = Gdx.audio.newSound(Gdx.files.internal("sounds/gameover.mp3"));
+        somFundo = Gdx.audio.newMusic(Gdx.files.internal("Sounds/background.mp3"));
+        somFundo.setLooping(true);
+
     }
 
     private void initTexturas() {
@@ -162,7 +178,8 @@ public class GameScreen extends BaseScreen {
                     shotings.removeValue(tiro, true);
                     m.remove();
                     meteoros_1.removeValue(m, true);
-                    criarExplosao(meteoro.getX(), meteoro.getY());
+                    criarExplosao(meteoro.getX() + meteoro.getWidth()
+                            , meteoro.getY() + meteoro.getHeight() / 2);
                 }
             }
         }
@@ -190,7 +207,7 @@ public class GameScreen extends BaseScreen {
 
     private void criarExplosao(float x, float y) {
     Image ator = new Image(texturaExplosao.get(0));
-        ator.setPosition(x, y);
+        ator.setPosition(x - ator.getWidth() / 2, y);
         palco.addActor(ator);
 
         Explosao explosao = new Explosao(ator, texturaExplosao);
@@ -215,6 +232,7 @@ public class GameScreen extends BaseScreen {
         if (shoting){
             if (intervaloTiros >= MAX_INTERVALO_TIROS){
                 Image shot = new Image(texturaShot);
+                somTiro.play();
                 float x = player.getX()+player.getWidth()/2 - shot.getWidth()/2;
                 float y = player.getY()+player.getHeight();
                 shot.setPosition(x,y);
@@ -391,5 +409,6 @@ public class GameScreen extends BaseScreen {
         for(Texture t : texturaExplosao){
             t.dispose();
         }
+
     }
 }
